@@ -24,16 +24,25 @@ pub enum PacketType {
 }
 
 /// TFTP protocol error. Should not be confused with `async_tftp::Error`.
-#[derive(Debug, Clone)]
+#[derive(thiserror::Error, Debug, Clone)]
 pub enum Error {
+    #[error("client message: {0}")]
     Msg(String),
+    #[error("unknown error")]
     UnknownError,
+    #[error("file not found")]
     FileNotFound,
+    #[error("permission denied")]
     PermissionDenied,
+    #[error("disk full")]
     DiskFull,
+    #[error("illegal operation")]
     IllegalOperation,
+    #[error("unknown transfer ID")]
     UnknownTransferId,
+    #[error("file already exists")]
     FileAlreadyExists,
+    #[error("no such user")]
     NoSuchUser,
 }
 
