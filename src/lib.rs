@@ -60,9 +60,9 @@ pub mod server;
 
 /// Packet definitions that are needed in public API.
 pub mod packet;
+pub mod parse;
 
 mod error;
-mod parse;
 mod tests;
 mod utils;
 

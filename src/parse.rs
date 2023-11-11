@@ -18,7 +18,7 @@ enum Opt<'a> {
     Invalid(&'a str, &'a str),
 }
 
-pub(crate) fn parse_packet(input: &[u8]) -> Result<Packet> {
+pub fn parse_packet(input: &[u8]) -> Result<Packet> {
     let (rest, packet) = match parse_packet_type(input)? {
         (data, PacketType::Rrq) => parse_rrq(data)?,
         (data, PacketType::Wrq) => parse_wrq(data)?,
@@ -75,7 +75,7 @@ fn parse_opt_tsize(input: &[u8]) -> IResult<&[u8], Opt> {
     })(input)
 }
 
-pub(crate) fn parse_opts(input: &[u8]) -> IResult<&[u8], Opts> {
+pub fn parse_opts(input: &[u8]) -> IResult<&[u8], Opts> {
     many0(alt((
         parse_opt_blksize,
         parse_opt_timeout,
