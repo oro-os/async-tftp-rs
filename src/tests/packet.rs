@@ -53,7 +53,7 @@ fn check_rrq() {
     assert!(matches!(packet, Err(ref e) if matches!(e, Error::InvalidPacket)));
 
     let packet = Packet::decode(
-        b"\x00\x01abc\0netascii\0blksize\0123\0timeout\03\0tsize\05556\0",
+        b"\x00\x01abc\0netascii\0blksize\0123\0timeout\03\0tsize\05556\0windowsize\07778\0",
     );
 
     assert!(matches!(packet, Ok(Packet::Rrq(ref req))
@@ -63,14 +63,15 @@ fn check_rrq() {
                         opts: Opts {
                             block_size: Some(123),
                             timeout: Some(3),
-                            transfer_size: Some(5556)
+                            transfer_size: Some(5556),
+                            window_size: Some(7778)
                         }
                     }
     ));
 
     assert_eq!(
         packet_to_bytes(&packet.unwrap()),
-        b"\x00\x01abc\0netascii\0blksize\0123\0timeout\03\0tsize\05556\0"[..]
+        b"\x00\x01abc\0netascii\0blksize\0123\0timeout\03\0windowsize\07778\0tsize\05556\0"[..]
     );
 
     let packet = Packet::decode(
@@ -124,7 +125,7 @@ fn check_wrq() {
     assert!(matches!(packet, Err(ref e) if matches!(e, Error::InvalidPacket)));
 
     let packet = Packet::decode(
-        b"\x00\x02abc\0octet\0blksize\0123\0timeout\03\0tsize\05556\0",
+        b"\x00\x02abc\0octet\0blksize\0123\0timeout\03\0windowsize\07342\0tsize\05556\0",
     );
 
     assert!(matches!(packet, Ok(Packet::Wrq(ref req))
@@ -134,14 +135,15 @@ fn check_wrq() {
                         opts: Opts {
                             block_size: Some(123),
                             timeout: Some(3),
-                            transfer_size: Some(5556)
+                            transfer_size: Some(5556),
+                            window_size: Some(7342),
                         }
                     }
     ));
 
     assert_eq!(
         packet_to_bytes(&packet.unwrap()),
-        b"\x00\x02abc\0octet\0blksize\0123\0timeout\03\0tsize\05556\0"[..]
+        b"\x00\x02abc\0octet\0blksize\0123\0timeout\03\0windowsize\07342\0tsize\05556\0"[..]
     );
 
     let packet = Packet::decode(b"\x00\x02abc\0octet\0blksizeX\0123\0");
@@ -221,7 +223,8 @@ fn check_oack() {
                     if opts == &Opts {
                         block_size: Some(123),
                         timeout: None,
-                        transfer_size: None
+                        transfer_size: None,
+                        window_size: None
                     }
     ));
 
@@ -230,7 +233,8 @@ fn check_oack() {
                     if opts == &Opts {
                         block_size: None,
                         timeout: Some(3),
-                        transfer_size: None
+                        transfer_size: None,
+                        window_size: None
                     }
     ));
 
@@ -240,16 +244,19 @@ fn check_oack() {
                         block_size: None,
                         timeout: None,
                         transfer_size: Some(5556),
+                        window_size: None
                     }
     ));
 
-    let packet =
-        Packet::decode(b"\x00\x06tsize\05556\0blksize\0123\0timeout\03\0");
+    let packet = Packet::decode(
+        b"\x00\x06tsize\05556\0blksize\0123\0timeout\03\0windowsize\09384\0",
+    );
     assert!(matches!(packet, Ok(Packet::OAck(ref opts))
                     if opts == &Opts {
                         block_size: Some(123),
                         timeout: Some(3),
                         transfer_size: Some(5556),
+                        window_size: Some(9384),
                     }
     ));
 }

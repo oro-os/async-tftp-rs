@@ -14,6 +14,7 @@ use crate::packet::{self, *};
 enum Opt<'a> {
     BlkSize(u16),
     Timeout(u8),
+    WindowSize(u64),
     Tsize(u64),
     Invalid(&'a str, &'a str),
 }
@@ -69,6 +70,15 @@ fn parse_opt_timeout(input: &[u8]) -> IResult<&[u8], Opt> {
     })(input)
 }
 
+fn parse_opt_windowsize(input: &[u8]) -> IResult<&[u8], Opt> {
+    map_opt(
+        tuple((tag_no_case(b"windowsize\0"), nul_str)),
+        |(_, n): (_, &str)| {
+            u64::from_str(n).ok().filter(|n| *n >= 1).map(Opt::WindowSize)
+        },
+    )(input)
+}
+
 fn parse_opt_tsize(input: &[u8]) -> IResult<&[u8], Opt> {
     map_opt(tuple((tag_no_case(b"tsize\0"), nul_str)), |(_, n): (_, &str)| {
         u64::from_str(n).ok().map(Opt::Tsize)
@@ -80,6 +90,7 @@ pub fn parse_opts(input: &[u8]) -> IResult<&[u8], Opts> {
         parse_opt_blksize,
         parse_opt_timeout,
         parse_opt_tsize,
+        parse_opt_windowsize,
         map(tuple((nul_str, nul_str)), |(k, v)| Opt::Invalid(k, v)),
     )))(input)
     .map(|(i, opt_vec)| (i, to_opts(opt_vec)))
@@ -98,6 +109,11 @@ fn to_opts(opt_vec: Vec<Opt>) -> Opts {
             Opt::Timeout(timeout) => {
                 if opts.timeout.is_none() {
                     opts.timeout.replace(timeout);
+                }
+            }
+            Opt::WindowSize(size) => {
+                if opts.window_size.is_none() {
+                    opts.window_size.replace(size);
                 }
             }
             Opt::Tsize(size) => {
