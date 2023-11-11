@@ -10,11 +10,11 @@ use std::str;
 use crate::error::Result;
 use crate::parse::*;
 
-pub(crate) const PACKET_DATA_HEADER_LEN: usize = 4;
+pub const PACKET_DATA_HEADER_LEN: usize = 4;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 #[repr(u16)]
-pub(crate) enum PacketType {
+pub enum PacketType {
     Rrq = 1,
     Wrq = 2,
     Data = 3,
@@ -38,7 +38,7 @@ pub enum Error {
 }
 
 #[derive(Debug)]
-pub(crate) enum Packet<'a> {
+pub enum Packet<'a> {
     Rrq(RwReq),
     Wrq(RwReq),
     Data(u16, &'a [u8]),
@@ -48,28 +48,28 @@ pub(crate) enum Packet<'a> {
 }
 
 #[derive(Debug, PartialEq)]
-pub(crate) enum Mode {
+pub enum Mode {
     Netascii,
     Octet,
     Mail,
 }
 
 #[derive(Debug, PartialEq)]
-pub(crate) struct RwReq {
+pub struct RwReq {
     pub filename: String,
     pub mode: Mode,
     pub opts: Opts,
 }
 
 #[derive(Debug, Clone, Default, PartialEq)]
-pub(crate) struct Opts {
+pub struct Opts {
     pub block_size: Option<u16>,
     pub timeout: Option<u8>,
     pub transfer_size: Option<u64>,
 }
 
 impl PacketType {
-    pub(crate) fn from_u16(n: u16) -> Option<PacketType> {
+    pub fn from_u16(n: u16) -> Option<PacketType> {
         match n {
             1 => Some(PacketType::Rrq),
             2 => Some(PacketType::Wrq),
@@ -89,11 +89,11 @@ impl From<PacketType> for u16 {
 }
 
 impl<'a> Packet<'a> {
-    pub(crate) fn decode(data: &[u8]) -> Result<Packet> {
+    pub fn decode(data: &[u8]) -> Result<Packet> {
         parse_packet(data)
     }
 
-    pub(crate) fn encode(&self, buf: &mut BytesMut) {
+    pub fn encode(&self, buf: &mut BytesMut) {
         match self {
             Packet::Rrq(req) => {
                 buf.put_u16(PacketType::Rrq.into());
@@ -133,12 +133,12 @@ impl<'a> Packet<'a> {
         }
     }
 
-    pub(crate) fn encode_data_head(block_id: u16, buf: &mut BytesMut) {
+    pub fn encode_data_head(block_id: u16, buf: &mut BytesMut) {
         buf.put_u16(PacketType::Data.into());
         buf.put_u16(block_id);
     }
 
-    pub(crate) fn to_bytes(&self) -> Bytes {
+    pub fn to_bytes(&self) -> Bytes {
         let mut buf = BytesMut::new();
         self.encode(&mut buf);
         buf.freeze()
@@ -168,7 +168,7 @@ impl Opts {
 }
 
 impl Mode {
-    pub(crate) fn to_str(&self) -> &'static str {
+    pub fn to_str(&self) -> &'static str {
         match self {
             Mode::Netascii => "netascii",
             Mode::Octet => "octet",
@@ -178,7 +178,7 @@ impl Mode {
 }
 
 impl Error {
-    pub(crate) fn from_code(code: u16, msg: Option<&str>) -> Self {
+    pub fn from_code(code: u16, msg: Option<&str>) -> Self {
         #[allow(clippy::wildcard_in_or_patterns)]
         match code {
             1 => Error::FileNotFound,
@@ -195,7 +195,7 @@ impl Error {
         }
     }
 
-    pub(crate) fn code(&self) -> u16 {
+    pub fn code(&self) -> u16 {
         match self {
             Error::Msg(..) => 0,
             Error::UnknownError => 0,
@@ -209,7 +209,7 @@ impl Error {
         }
     }
 
-    pub(crate) fn msg(&self) -> &str {
+    pub fn msg(&self) -> &str {
         match self {
             Error::Msg(msg) => msg,
             Error::UnknownError => "Unknown error",
