@@ -1,4 +1,7 @@
-///! Packet definitions.
+#![allow(clippy::octal_escapes)]
+
+//! Packet definitions.
+
 use bytes::{BufMut, Bytes, BytesMut};
 use std::convert::From;
 use std::io;

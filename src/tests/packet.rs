@@ -1,3 +1,4 @@
+#![allow(clippy::octal_escapes)]
 use bytes::{Bytes, BytesMut};
 
 use crate::error::Error;
@@ -156,14 +157,12 @@ fn check_wrq() {
 #[test]
 fn check_data() {
     let packet = Packet::decode(b"\x00\x03\x00\x09abcde");
-    assert!(
-        matches!(packet, Ok(Packet::Data(9, ref data)) if &data[..] == b"abcde")
-    );
+    assert!(matches!(packet, Ok(Packet::Data(9, data)) if data == b"abcde"));
 
     assert_eq!(packet_to_bytes(&packet.unwrap()), b"\x00\x03\x00\x09abcde"[..]);
 
     let packet = Packet::decode(b"\x00\x03\x00\x09");
-    assert!(matches!(packet, Ok(Packet::Data(9, ref data)) if data.is_empty()));
+    assert!(matches!(packet, Ok(Packet::Data(9, data)) if data.is_empty()));
     assert_eq!(packet_to_bytes(&packet.unwrap()), b"\x00\x03\x00\x09"[..]);
 }
 
