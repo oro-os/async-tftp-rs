@@ -24,7 +24,7 @@ pub enum PacketType {
 }
 
 /// TFTP protocol error. Should not be confused with `async_tftp::Error`.
-#[derive(thiserror::Error, Debug, Clone)]
+#[derive(thiserror::Error, Debug, Clone, PartialEq)]
 pub enum Error {
     #[error("client message: {0}")]
     Msg(String),
